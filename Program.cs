@@ -10,8 +10,8 @@ namespace ConsoleApp
         private static IConfiguration _iconfiguration;
         static void Main(string[] args)
         {
-            //String LoggedInUser = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
-            //Console.WriteLine("Logon User: " + LoggedInUser);
+            String LoggedInUser = Environment.UserName;
+            Console.WriteLine("Logon User: " + LoggedInUser);            
 
             DateTime nowDT = DateTime.Now;
             Console.WriteLine("Date: " + nowDT);
