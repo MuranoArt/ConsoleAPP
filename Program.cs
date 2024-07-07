@@ -36,9 +36,7 @@ namespace ConsoleApp
             {
                 Console.WriteLine(item.AutoID + " | " + item.DepartmentNumber + " | " + item.EmployeeNumber + " | " + item.FirstName + " " + item.LastName);
             });
-
-            //Console.WriteLine("Press any key to stop.");
-            //Console.ReadKey();
+           
         }
     }
 }
