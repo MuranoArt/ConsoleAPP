@@ -3,47 +3,47 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 namespace ConsoleApp.DAL
 
 {
     public class EmployeeDAL
     {
-        private string _connectionString;
-        public EmployeeDAL(IConfiguration iconfiguration)
+        private readonly string _connectionString;
+        public EmployeeDAL(IConfiguration configuration)
         {
-            _connectionString = iconfiguration.GetConnectionString("Default");
+            ArgumentNullException.ThrowIfNull(configuration);
+
+            _connectionString = configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Connection string 'Default' is not configured.");
         }
         public List<EmployeeModel> GetList()
         {
             var listEmployeeModel = new List<EmployeeModel>();
             try
             {
-                using (SqlConnection con = new SqlConnection(_connectionString))
+                using SqlConnection con = new(_connectionString);
+                using SqlCommand cmd = new("USP_EMPLOYEE_GET_ALL", con) { CommandType = CommandType.StoredProcedure };
+                con.Open();
+                using SqlDataReader rdr = cmd.ExecuteReader();
+                while (rdr.Read())
                 {
-                    SqlCommand cmd = new SqlCommand("USP_EMPLOYEE_GET_ALL", con);
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    con.Open();
-                    SqlDataReader rdr = cmd.ExecuteReader();
-                    while (rdr.Read())
+                    listEmployeeModel.Add(new EmployeeModel
                     {
-                        listEmployeeModel.Add(new EmployeeModel
-                        {
-                            AutoID = Convert.ToInt32(rdr[0]),
-                            EmployeeNumber = Convert.ToInt32(rdr[1]),
-                            DepartmentNumber = Convert.ToInt32(rdr[2]),
-                            DepartmentName = rdr[3].ToString(),
-                            FirstName = rdr[4].ToString(),
-                            LastName = rdr[5].ToString(),
-                            ZipCode = rdr[6].ToString()
-                        });
-                    }
+                        AutoID = rdr.IsDBNull(0) ? 0 : rdr.GetInt32(0),
+                        EmployeeNumber = rdr.IsDBNull(1) ? 0 : rdr.GetInt32(1),
+                        DepartmentNumber = rdr.IsDBNull(2) ? 0 : rdr.GetInt32(2),
+                        DepartmentName = rdr.IsDBNull(3) ? string.Empty : rdr.GetString(3),
+                        FirstName = rdr.IsDBNull(4) ? string.Empty : rdr.GetString(4),
+                        LastName = rdr.IsDBNull(5) ? string.Empty : rdr.GetString(5),
+                        ZipCode = rdr.IsDBNull(6) ? string.Empty : rdr.GetString(6)
+                    });
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                // Preserve original stack trace
+                throw;
             }
             return listEmployeeModel;
         }
