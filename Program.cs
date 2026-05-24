@@ -7,15 +7,16 @@ namespace ConsoleApp
 {
     class Program
     {
-        private static IConfiguration _iconfiguration;
-        static void Main(string[] args)
-        {
-            String LoggedInUser = Environment.UserName;
-            Console.WriteLine("Logon User: " + LoggedInUser);            
+        private static IConfiguration _configuration;
 
-            DateTime nowDT = DateTime.Now;
-            Console.WriteLine("Date: " + nowDT);
-            Console.WriteLine("");
+        static void Main()
+        {
+            var loggedInUser = Environment.UserName;
+            Console.WriteLine("Logon User: " + loggedInUser);
+
+            var now = DateTime.Now;
+            Console.WriteLine("Date: " + now);
+            Console.WriteLine();
 
             GetAppSettingsFile();
             DisplayEmployees();
@@ -26,17 +27,17 @@ namespace ConsoleApp
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
-            _iconfiguration = builder.Build();
+            _configuration = builder.Build();
         }
         static void DisplayEmployees()
         {
-            var EmployeeDAL = new EmployeeDAL(_iconfiguration);
-            var listEmployeeModel = EmployeeDAL.GetList();
-            listEmployeeModel.ForEach(item =>
+            var employeeDal = new EmployeeDAL(_configuration);
+            var listEmployeeModel = employeeDal.GetList();
+            foreach (var item in listEmployeeModel)
             {
                 Console.WriteLine(item.AutoID + " | " + item.DepartmentNumber + " | " + item.EmployeeNumber + " | " + item.FirstName + " " + item.LastName);
-            });
-           
+            }
+
         }
     }
 }
